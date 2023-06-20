@@ -6,7 +6,7 @@ public class Room : MonoBehaviour
 {
     public class Rectangle
     {
-        // Значения (в данном случае - это стенки, которыми мы будем двигать)
+        // Cтенки, которыми мы будем двигать (притом, только в одну сторону)
         // Вертикальные стены
         private Wall left;
         private Wall right;
@@ -15,11 +15,11 @@ public class Room : MonoBehaviour
         private Wall down;
         // Тип комнаты, к которой принадлежит этот квадрат в т.ч. его потомки
         private string type;
-        // Потомки
-        private List<Rectangle> childLeft;
-        private List<Rectangle> childRight;
-        private List<Rectangle> childUpp;
-        private List<Rectangle> childDown;
+        // Потомки, могут быть - null, либо непустой экземпляр (хотя бы с одним элементом)
+        private List<Rectangle> childLeft = null;
+        private List<Rectangle> childRight = null;
+        private List<Rectangle> childUpp = null;
+        private List<Rectangle> childDown = null;
         // Флажки, для разрешения/неразрешения разветвления стенки
         private bool stopedLeft = false;
         private bool stopedRigth = false;
@@ -27,6 +27,7 @@ public class Room : MonoBehaviour
         private bool stopedDown = false;
 
         // Наш узел - Rectangle
+        // --> x, y, x + 1, y - 1
         public Rectangle(int x1, int y1, int x2, int y2, string type)
         {
             this.left = new Wall(y1, y2, x1, type);
@@ -40,214 +41,215 @@ public class Room : MonoBehaviour
 
         // Передвигаем стенка (не забываем поддерживать связность с другими)
         // Вертикальные
-        public List<Delta> moveLeft(int speed)
+        public List<Delta> MoveLeft(int speed)
         {
-            Delta old1 = left.changeInd(-speed);
-            Delta old2 = upp.changeLength(-speed, 0);
-            Delta old3 = down.changeLength(-speed, 0);
+            Delta old1 = left.ChangeInd(-speed);
+            Delta old2 = upp.ChangeLength(-speed, 0);
+            Delta old3 = down.ChangeLength(-speed, 0);
 
             return new List<Delta>(){old1, old2, old3};
         }
 
-        public List<Delta> moveRight(int speed)
+        public List<Delta> MoveRight(int speed)
         {
-            Delta old1 = right.changeInd(speed);
-            Delta old2 = upp.changeLength(0, speed);
-            Delta old3 = down.changeLength(0, speed);
+            Delta old1 = right.ChangeInd(speed);
+            Delta old2 = upp.ChangeLength(0, speed);
+            Delta old3 = down.ChangeLength(0, speed);
 
             return new List<Delta>(){old1, old2, old3};;
         }
 
         // Горизонтальные
-        public List<Delta> moveUpp(int speed)
+        public List<Delta> MoveUpp(int speed)
         {
-            Delta old1 = upp.changeInd(speed);
-            Delta old2 = left.changeLength(0, speed);
-            Delta old3 = right.changeLength(0, speed);
+            Delta old1 = upp.ChangeInd(speed);
+            Delta old2 = left.ChangeLength(0, speed);
+            Delta old3 = right.ChangeLength(0, speed);
 
             return new List<Delta>(){old1, old2, old3};;
         }
 
-        public List<Delta> moveDown(int speed)
+        public List<Delta> MoveDown(int speed)
         {
-            Delta old1 = down.changeInd(-speed);
-            Delta old2 = left.changeLength(-speed, 0);
-            Delta old3 = right.changeLength(-speed, 0);
+            Delta old1 = down.ChangeInd(-speed);
+            Delta old2 = left.ChangeLength(-speed, 0);
+            Delta old3 = right.ChangeLength(-speed, 0);
 
             return new List<Delta>(){old1, old2, old3};;
         }
 
         // Получаем стенки - экземпляры класса Wall
-        public Wall getLeft()
+        public Wall GetLeft()
         {
             return left;
         }
 
-        public Wall getRight()
+        public Wall GetRight()
         {
             return right;
         }
 
-        public Wall getUpp()
+        public Wall GetUpp()
         {
             return upp;
         }
 
-        public Wall getDown()
+        public Wall GetDown()
         {
             return down;
         }
 
-        // Изменение значения флажков
-        public void turnStopedLeft(bool value)
+        // Добавление потомков к разным стенам. Дубликаты созданы, чтобы инициализировать потомки, но оставлять пустым
+        public void AddLeftChild(int x1, int y1, int x2, int y2)
         {
-            this.stopedLeft = value;
+            childLeft = (childLeft != null) ? (childLeft) : (new List<Rectangle>());
+            childLeft.Add(new Rectangle(x1, y1, x2, y2, type));
+            childLeft[childLeft.Count - 1].TurnStopedRigth(true);
         }
 
-        public void turnStopedRigth(bool value)
+        public void OpenLeftChild()
         {
-            this.stopedRigth = value;
-        }
-        
-        public void turnStopedUpp(bool value)
-        {
-            this.stopedUpp = value;
+            childLeft = new List<Rectangle>();
         }
 
-        public void turnStopedDown(bool value)
+        public void AddRightChild(int x1, int y1, int x2, int y2)
         {
-            this.stopedDown = value;
-        }
-
-        // Есть ли потомки ?
-        public bool haveLeftChild()
-        {
-            return childLeft.Count != 0;
-        }
-
-        public bool haveRightChild()
-        {
-            return childRight.Count != 0;
-        }
-
-        public bool haveUppChild()
-        {
-            return childUpp.Count != 0;
-        }
-
-        public bool haveDownChild()
-        {
-            return childDown.Count != 0;
-        }
-
-        // Добавление потомков к разным стенам
-        public void addLeftChild(int x1, int y1, int x2, int y2)
-        {
-            Rectangle rec = new Rectangle(x1, y1, x2, y2, type);
-            rec.turnStopedLeft(true);
-            childLeft.Add(rec);
-        }
-
-        public void addRightChild(int x1, int y1, int x2, int y2)
-        {
-            Rectangle rec = new Rectangle(x1, y1, x2, y2, type);
-            rec.turnStopedRigth(true);
+            childRight = (childRight != null) ? (childRight) : (new List<Rectangle>());
             childRight.Add(new Rectangle(x1, y1, x2, y2, type));
+            childRight[childRight.Count - 1].TurnStopedLeft(true);
         }
 
-        public void addUppChild(int x1, int y1, int x2, int y2)
+        public void OpenRightChild()
         {
-            Rectangle rec = new Rectangle(x1, y1, x2, y2, type);
-            rec.turnStopedUpp(true);
+            childRight = new List<Rectangle>();
+        }
+
+        public void AddUppChild(int x1, int y1, int x2, int y2)
+        {
+            childUpp = (childUpp != null) ? (childUpp) : (new List<Rectangle>());
             childUpp.Add(new Rectangle(x1, y1, x2, y2, type));
+            childUpp[childUpp.Count - 1].TurnStopedDown(true);
         }
 
-        public void addDownChild(int x1, int y1, int x2, int y2)
+        public void OpenUppChild()
         {
-            Rectangle rec = new Rectangle(x1, y1, x2, y2, type);
-            rec.turnStopedDown(true);
+            childUpp = new List<Rectangle>();
+        }
+
+        public void AddDownChild(int x1, int y1, int x2, int y2)
+        {
+            childDown = (childDown != null) ? (childDown) : (new List<Rectangle>());
             childDown.Add(new Rectangle(x1, y1, x2, y2, type));
+            childDown[childDown.Count - 1].TurnStopedUpp(true);
+        }
+
+        public void OpenDownChild()
+        {
+            childDown = new List<Rectangle>();
         }
 
         // Получение потомков
-        public List<Rectangle> getLeftChilds()
+        public List<Rectangle> GetLeftChilds()
         {
             return childLeft;
         }
 
-        public List<Rectangle> getRightChilds()
+        public List<Rectangle> GetRightChilds()
         {
             return childRight;
         }
 
-        public List<Rectangle> getUppChilds()
+        public List<Rectangle> GetUppChilds()
         {
             return childUpp;
         }
 
-        public List<Rectangle> getDownChilds()
+        public List<Rectangle> GetDownChilds()
         {
             return childDown;
         }
 
-        // Завершено ли разветвление ?
-        public bool isCompleted()
+        // Имеет ли стена хотя бы одного потомка
+        public bool HaveLeftChilds()
+        {
+            return childLeft != null && childLeft.Count > 0;
+        }
+
+        public bool HaveRightChilds()
+        {
+            return childRight != null && childRight.Count > 0;
+        }
+
+        public bool HaveUppChilds()
+        {
+            return childUpp != null && childUpp.Count > 0;
+        }
+
+        public bool HaveDownChilds()
+        {
+            return childDown != null && childDown.Count > 0;
+        }
+
+        // Завершено ли разветвление ? Завершено только если стена не имеет потомков либо у её потомков не может быть больше потомков 
+        public bool IsCompleted()
         {
             return stopedLeft && stopedRigth && stopedUpp && stopedDown;
         }
 
         // Получаем состояние флажков
-        public bool isLeftStoped()
+        public bool IsLeftStoped()
         {
             return stopedLeft;
         }
 
-        public bool isRightStoped()
+        public bool IsRightStoped()
         {
             return stopedRigth;
         }
 
-        public bool isUppStoped()
+        public bool IsUppStoped()
         {
             return stopedUpp;
         }
         
-        public bool isDownStoped()
+        public bool IsDownStoped()
         {
             return stopedDown;
         }
 
+        // Изменение значения флажков
+        public void TurnStopedLeft(bool value)
+        {
+            this.stopedLeft = value;
+        }
+
+        public void TurnStopedRigth(bool value)
+        {
+            this.stopedRigth = value;
+        }
+        
+        public void TurnStopedUpp(bool value)
+        {
+            this.stopedUpp = value;
+        }
+
+        public void TurnStopedDown(bool value)
+        {
+            this.stopedDown = value;
+        }
     }
 
     private string type;
     private Rectangle root = null;
 
-    public Room(string type, int startX, int startY, int crushingFactor)
+    public Room(string type, int startX, int startY)
     {
         this.type = type;
-        this.root = new Rectangle(startX, startX + 1, startY - 1, startY, type);
+        this.root = new Rectangle(startX, startY, startX + 1, startY + 1, type);
     }
 
-    public Rectangle getRoot()
+    public Rectangle GetRoot()
     {
         return root;
     }
-
-    // Обход нашей комнаты по конутру - ПОДУМАТЬ!
-    // public List<Wall> search()
-    // {
-    //     return searchMain(root, new List<Wall>() {left, down, right, upp}, new List<List<Rectangle>>() {childLeft, childDown, childRight, childUpp});
-    // }
-
-    // public List<Wall> searchMain(Rectangle rec, List<Wall> walls, List<List<Rectangle>> childs)
-    // {
-    //     for (int i = 0; i < walls.Count; i++)
-    //     {
-    //         for (int j = 0; j < childs[i]; j++)
-    //         {
-                
-    //         }
-    //     }
-    // }
-
 }

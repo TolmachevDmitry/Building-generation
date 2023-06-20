@@ -18,18 +18,18 @@ public class Node
 public class Circuit
 {
     // Получить расстояние межу точками
-    static double getRay(Node p1, Node p2)
+    static double GetRay(Node p1, Node p2)
     {
         return Math.Sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
     }
 
     // Получить угол точкек относительно самой первой (для сортироки)
-    static double getCorner(Node p1, Node p2)
+    static double GetCorner(Node p1, Node p2)
     {
         double dX = p1.x - p2.x;
         double dY = p1.y - p2.y;
 
-        double r = getRay(p1, p2);
+        double r = GetRay(p1, p2);
 
         double corner = Math.Asin(dY / r) * 180 / Math.PI;
 
@@ -52,13 +52,13 @@ public class Circuit
     }
 
     // Сравнение точек для сортироки
-    static double comparePoints(Node p1, Node p2, Node p0)
+    static double ComparePoints(Node p1, Node p2, Node p0)
     {
-        double r1 = getRay(p1, p0);
-        double r2 = getRay(p2, p0);
+        double r1 = GetRay(p1, p0);
+        double r2 = GetRay(p2, p0);
 
-        double corner1 = getCorner(p1, p0);
-        double corner2 = getCorner(p2, p0);
+        double corner1 = GetCorner(p1, p0);
+        double corner2 = GetCorner(p2, p0);
 
         if (corner1 - corner2 != 0) 
         {
@@ -72,7 +72,7 @@ public class Circuit
     }
 
     // Вспомогательный метод для сортироки
-    static List<Node> siftDown(List<Node> list, int k, int n, Node p0)
+    static List<Node> SiftDown(List<Node> list, int k, int n, Node p0)
     {
         Node point = list[k];
 
@@ -85,12 +85,12 @@ public class Circuit
                 break;
             }
             
-            if (childIndex + 1 < n && comparePoints(list[childIndex + 1], list[childIndex], p0) > 0) 
+            if (childIndex + 1 < n && ComparePoints(list[childIndex + 1], list[childIndex], p0) > 0) 
             {
                 childIndex++;
             }
             
-            if (comparePoints(point, list[childIndex], p0) > 0) 
+            if (ComparePoints(point, list[childIndex], p0) > 0) 
             {
                 break;
             }
@@ -105,7 +105,7 @@ public class Circuit
     }
 
     // Сортировка точек по полярным координатам (углу и расстоянию) относительно p0
-    static List<Node> sortForCircuit(List<Node> list, int indexP0)
+    static List<Node> SortForCircuit(List<Node> list, int indexP0)
     {
         Node pStart = list[indexP0];
         list.RemoveAt(indexP0);
@@ -114,7 +114,7 @@ public class Circuit
     
         for (int i = heapSize / 2; i >= 0; i--) 
         {
-            list = siftDown(list, i, heapSize, pStart);
+            list = SiftDown(list, i, heapSize, pStart);
         }
 
         while (heapSize > 1) 
@@ -125,30 +125,30 @@ public class Circuit
             
             heapSize--;
             
-            list = siftDown(list, 0, heapSize, pStart);
+            list = SiftDown(list, 0, heapSize, pStart);
         }
 
         return list;
     }
 
     // Проверяем, нужная ли это для нас точка (образует ли прямой или развёрнутый углы)
-    static bool isRightPoint(Node p0, Node p1, Node candidate)
+    static bool IsRightPoint(Node p0, Node p1, Node candidate)
     {
         if ((p0.x == p1.x && p1.x == candidate.x) || (p0.y == p1.y && p1.y == candidate.y))
         {
             return true;
         }
 
-        double a = getRay(p0, p1);
-        double b = getRay(p1, candidate);
-        double c = getRay(p0, candidate);
+        double a = GetRay(p0, p1);
+        double b = GetRay(p1, candidate);
+        double c = GetRay(p0, candidate);
 
         return Math.Sqrt(a * a + b * b) == c;
 
     }
 
     // Лишняя точка ("торчащая линия")
-    static bool isExtra(Node p0, Node p1, Node newP)
+    static bool IsExtra(Node p0, Node p1, Node newP)
     {
         bool a = p0.y == p1.y && newP.y == p0.y && ((p1.x > p0.x && newP.x < p1.x) || (p1.x < p0.x && newP.x > p1.x));
         bool b = p0.x == p1.x && newP.x == p0.x && ((p1.y > p0.y && newP.y < p1.y) || (p1.y < p0.y && newP.y > p1.y));
@@ -157,7 +157,7 @@ public class Circuit
     }
 
     // Определяем, по какой оси нам двигаться - по x или по ys
-    static int[] getVector(Node pStart, Node pGoal)
+    static int[] GetVector(Node pStart, Node pGoal)
     {
         int[] vector = new int[2];
 
@@ -168,9 +168,9 @@ public class Circuit
     }
 
     // Проверка, не будут ли образововаться "ножницы" (пепесечения отрезков) при переходе в такую точку
-    static bool within(int [,] matrix, Node pStart, Node penultimate,  Node pGoal)
+    static bool Within(int [,] matrix, Node pStart, Node penultimate,  Node pGoal)
     {
-        int[] vector = getVector(pStart, pGoal);
+        int[] vector = GetVector(pStart, pGoal);
 
         int compY = (matrix.GetLength(0) - 1) / 2;
         int compX = (matrix.GetLength(1) - 1) / 2;
@@ -192,13 +192,13 @@ public class Circuit
         return true;
     }
 
-    // Заполнение границ контура для проверки
-    static void borderSetting(int [,] matrix, bool f, Node pStart, Node pGoal)
+    // Заполнение границ контура (для проверки)
+    static void BorderSetting(int [,] matrix, bool f, Node pStart, Node pGoal)
     {
         // Если f = true - заполнеяем отрезок 1-ами, в противном случае - 0-ми
         int value = (f) ? (1) : (0);
 
-        int[] vector = getVector(pStart, pGoal);
+        int[] vector = GetVector(pStart, pGoal);
         int[,] newMatrix = matrix;
 
         int compY = (matrix.GetLength(0) - 1) / 2;
@@ -219,11 +219,11 @@ public class Circuit
     }
 
     // Поиск контура (Основной метод для этой задачи)
-    static List<Node> buildingOutLine(List<Node> list, int indexP0, int n, int m) 
+    static List<Node> BuildingOutLine(List<Node> list, int indexP0, int n, int m) 
     {
         // Отсортированные точки
         Node firstPoint = list[indexP0];
-        List<Node> nodes = sortForCircuit(list, indexP0);
+        List<Node> nodes = SortForCircuit(list, indexP0);
         nodes.Insert(0, firstPoint);
 
         if(firstPoint.y != nodes[1].y)
@@ -256,7 +256,8 @@ public class Circuit
 
         // Таблица плохих элементов, путь в которые из конкретной точки ведёт в плохому исходу  (+ 1 для каждой оси - чтобы учитывать нули)
         int[,] enemies = new int[nodes.Count, nodes.Count];
-        
+
+        // Собственно алгоритм построения контура здания
         int i = 1;
         while (true)
         {
@@ -267,16 +268,16 @@ public class Circuit
             while (k < missingVer.Count)
             {
                 // Подходит ли нам эта точка ?
-                if (isRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], missingVer[k]) && within(matrixComp, circuit[circuit.Count - 1], circuit[circuit.Count - 2], missingVer[k]) && enemies[circInt[circInt.Count - 1], missingInt[k]] != 1 && !exitEn[missingInt[k]])
+                if (IsRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], missingVer[k]) && Within(matrixComp, circuit[circuit.Count - 1], circuit[circuit.Count - 2], missingVer[k]) && enemies[circInt[circInt.Count - 1], missingInt[k]] != 1 && !exitEn[missingInt[k]])
                 {
-                    // Чтобы не образовывались линии
-                    if (isExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], missingVer[k]))
+                    // Чтобы не образовывались "торчащие" линии
+                    if (IsExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], missingVer[k]))
                     {
-                        borderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
+                        BorderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
                         circuit.RemoveAt(circuit.Count - 1);
                     }
 
-                    borderSetting(matrixComp, true, circuit[circuit.Count - 1], missingVer[k]);
+                    BorderSetting(matrixComp, true, circuit[circuit.Count - 1], missingVer[k]);
 
                     // Добавляем эту точку
                     circuit.Add(missingVer[k]);
@@ -302,17 +303,17 @@ public class Circuit
                 i += 1;
 
                 // Подходит ли эта точка ?
-                if (isRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[i]) && within(matrixComp, circuit[circuit.Count - 1], circuit[circuit.Count - 2], nodes[i]) && enemies[circInt[circInt.Count - 1], i] != 1 && !exitEn[i])
+                if (IsRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[i]) && Within(matrixComp, circuit[circuit.Count - 1], circuit[circuit.Count - 2], nodes[i]) && enemies[circInt[circInt.Count - 1], i] != 1 && !exitEn[i])
                 {
                     // Чтобы не образовывались "торчащие" линии
-                    if (isExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[i]))
+                    if (IsExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[i]))
                     {
-                        borderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
+                        BorderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
                         circuit.RemoveAt(circuit.Count - 1);
                     }
 
                     // Добавляем точку
-                    borderSetting(matrixComp, true, circuit[circuit.Count - 1], nodes[i]);
+                    BorderSetting(matrixComp, true, circuit[circuit.Count - 1], nodes[i]);
                     circuit.Add(nodes[i]);
                     circInt.Add(i);
                     exitEn[i] = true;
@@ -334,12 +335,12 @@ public class Circuit
             }
 
             // В случае, если из поседней точки мы так никуда не попадём и не смыкаем контур
-            if (!pointFound && !isRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], circuit[0]))
+            if (!pointFound && !IsRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], circuit[0]))
             {
                 int badPoint = circInt[circInt.Count - 1];
                 int indOfBad = circInt[circInt.Count - 1];
                 
-                borderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
+                BorderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
 
                 circuit.RemoveAt(circuit.Count - 1);
                 circInt.RemoveAt(circInt.Count - 1);
@@ -350,11 +351,11 @@ public class Circuit
             }
 
             // Не пора ли нам останавливать алгоритм
-            if (!pointFound && isRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], circuit[0]))
+            if (!pointFound && IsRightPoint(circuit[circuit.Count - 2], circuit[circuit.Count - 1], circuit[0]))
             {
-                if (isExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[0]))
+                if (IsExtra(circuit[circuit.Count - 2], circuit[circuit.Count - 1], nodes[0]))
                 {
-                    borderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
+                    BorderSetting(matrixComp, false, circuit[circuit.Count - 2], circuit[circuit.Count - 1]);
                     circuit.RemoveAt(circuit.Count - 1);
                 }
  
@@ -369,7 +370,7 @@ public class Circuit
         return circuit;
     }
 
-    public List<Node> createCircuit(int n, int m)
+    public List<Node> CreateCircuit(int n, int m)
     {
         List<Node> nodes = new List<Node>();
         List<string> againstRepeat = new List<string>();
@@ -382,12 +383,10 @@ public class Circuit
         for (int i = 0; i < countPoints; i++)
         {
             int x, y;
-
             while (true)
             {
-                x = (new System.Random()).Next(-n, n);
-                y = (new System.Random()).Next(-m, m);
-
+                x = (new System.Random()).Next(-m, m);
+                y = (new System.Random()).Next(-n, n);
                 string str = "" + x + ":" + y;
                 
                 if (!againstRepeat.Contains(str))
@@ -406,8 +405,8 @@ public class Circuit
                 index = i;
             }
         }
-
-        List<Node> circuit = buildingOutLine(nodes, index, 2 * n, 2 * m);
+        // Вызов основоного метода генерации контура
+        List<Node> circuit = BuildingOutLine(nodes, index, 2 * n, 2 * m);
         return circuit;
 
     }

@@ -12,28 +12,25 @@ public class Speeds
 
     public Speeds(int maxValue)
     {
-        this.speedLeft = (new System.Random()).Next(1, maxValue);
-        this.speedRight = (new System.Random()).Next(1, maxValue);
-        this.speedUpp = (new System.Random()).Next(1, maxValue);
-        this.speedDown = (new System.Random()).Next(1, maxValue);
+        this.speedLeft = (new System.Random()).Next(1, maxValue / 2 + 1);
+        this.speedRight = (new System.Random()).Next(1, maxValue / 2 + 1);
+        this.speedUpp = (new System.Random()).Next(1, maxValue / 2 + 1);
+        this.speedDown = (new System.Random()).Next(1, maxValue / 2 + 1);
     }
 
-    public int getSpeedLeft()
+    public int GetSpeedLeft()
     {
         return speedLeft;
     }
-
-    public int getSpeedRight()
+    public int GetSpeedRight()
     {
         return speedRight;
     }
-
-    public int getSpeedUpp()
+    public int GetSpeedUpp()
     {
         return speedUpp;
     }
-
-    public int getSpeedDown()
+    public int GetSpeedDown()
     {
         return speedDown;
     }

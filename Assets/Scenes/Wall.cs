@@ -7,18 +7,18 @@ public class Delta
     private Wall oldValue;
     private Wall newValue;
 
-    public Delta(Wall w0, Wall w1)
+    public Delta(Wall wall0, Wall wall1)
     {
-        this.oldValue = w0;
-        this.newValue = w1;
+        this.oldValue = wall0;
+        this.newValue = wall1;
     }
 
-    public Wall getOld()
+    public Wall GetOld()
     {
         return oldValue;
     }
 
-    public Wall getNew()
+    public Wall GetNew()
     {
         return newValue;
     }
@@ -46,48 +46,49 @@ public class Wall
 
     // Изменение точек, образующих длину
     // На вход подаются величина преращения
-    public Delta changeLength(int dP1, int dP2)
+    public Delta ChangeLength(int dP1, int dP2)
     {
-        Wall old = new Wall(p1, p2, ind, type);
+        Wall wallOld = new Wall(p1, p2, ind, type);
 
         this.p1 += dP1;
         this.p2 += dP2;
 
-        return new Delta(old, this);
+        return new Delta(wallOld, this);
     }
 
     // Изменение расположения на оси, по которой обе точки равны друг-другу
-    public Delta changeInd(int dInd)
+    public Delta ChangeInd(int dInd)
     {
-        Wall old = new Wall(p1, p2, ind, type);
+        Wall wallOld = new Wall(p1, p2, ind, type);
         ind += dInd;
 
-        return new Delta(old, this);
+        return new Delta(wallOld, this);
     }
 
     // Мы сравниваем с элементами из индекса, который мы получили из этой стены
-    public bool isEquals(Wall wOther)
+    public bool IsEquals(Wall wallOther)
     {
-        return this.p1 == wOther.getP1() && this.p2 == wOther.getP2() && this.ind == wOther.getInd() && this.type == wOther.getType();
+        return this.p1 == wallOther.GetP1() && this.p2 == wallOther.GetP2() && this.ind == wallOther.GetInd() 
+        && this.type == wallOther.GetTypeRoom();
     }
 
     // Получение всех параметров
-    public int getP1()
+    public int GetP1()
     {
         return p1;
     }
 
-    public int getP2()
+    public int GetP2()
     {
         return p2;
     }
 
-    public int getInd()
+    public int GetInd()
     {
         return ind;
     }
 
-    public string getType()
+    public string GetTypeRoom()
     {
         return type;
     }
